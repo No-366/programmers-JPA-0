@@ -6,6 +6,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter // 게터와 세터를 자동으로 만들어준다 : 이름을 만드는 규칙 -> 앞에 get 이나 set 이 붙고 대문자로 시작
 @Setter
 @ToString
@@ -20,6 +22,8 @@ public class Post {
     private String title;
     @Column(columnDefinition = "TEXT")
     private String content;
+    private LocalDateTime createDate;
+    private LocalDateTime modifyDate;
 
     //public Post() {} // 아래와 같이 특수한 생성자를 만들면 자바가 더이상 기본 생성자를 따로 만들어주지 않기 때문에
 
@@ -29,6 +33,8 @@ public class Post {
 //        this.content = "고정된 값";
 //    }
     public Post(String title, String content) {
+        this.createDate = LocalDateTime.now();
+        this.modifyDate = LocalDateTime.now();
         this.title = title;
         this.content = content;
     }

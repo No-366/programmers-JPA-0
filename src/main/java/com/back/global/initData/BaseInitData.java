@@ -1,11 +1,16 @@
 package com.back.global.initData;
 
 import com.back.domain.post.entity.Post;
-import com.back.domain.repository.PostRepository;
+import com.back.domain.post.repository.PostRepository;
+import com.back.domain.post.service.PostService;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 
 /*
@@ -28,28 +33,60 @@ import org.springframework.context.annotation.Configuration;
 
 // 그냥 이 포맷은 받아들이라고 하심 from 강사님
 
-@Configuration
+@Service// Configuration와 Service는 Component를 기반으로 만든것임
+@RequiredArgsConstructor
 public class BaseInitData {//초기 데이터 세팅용 코드
 
-    @Autowired // 이 애너테이션을 통해 스프링으로부터 Bean 객체를 주입받는다
-    private PostRepository postRepository;
+//    @Autowired // 이 애너테이션을 통해 스프링으로부터 Bean 객체를 주입받는다
+//    private PostRepository postRepository;
+
+    //@Autowired
+    private final PostService postService;
+
+//    //생성자 주입 // Autowired가 이 역할을 대신 해줌
+//    public BaseInitData(PostService postService) {
+//        this.postService = postService;
+//    }
 
 
     @Bean // -> 이게 있어야 스프링이 initDataRunner()의 리턴 객체를 Bean으로 등록한다
     ApplicationRunner initDataRunner(){ //어플리케이션이 실행될 때
         return args -> {
-            System.out.println("초기 데이터를 로딩합니다.");
+            System.out.println("어플리케이션을 실행하였습니다");
 
-            Post post = new Post("제목2", "내용2");
-//            post.setTitle("제목 1");
-//            post.setContent("내용 1");
-            postRepository.save(post);
+            work1();
+            work2();
 
-            //postRepository.count();
-
-            postRepository.findById(1); // select * from post where id=1;
         };
     }
+
+    // 초기에 아무 데이터가 없을 경우 샘플 데이처을 넣는 메서드
+    // 데이터가 이미 들어있을 경우 실행 안함
+    void work1(){
+
+        if(postService.getTotalCount() > 0){
+            return;
+        }
+
+        // 서비스를 도입해서 비즈니스 로직을 재사용
+        postService.write("제목1", "내용1");
+        postService.write("제목2", "내용2");
+
+//        Post post1 = new Post("제목1", "내용1");
+//        //비즈니스 로직
+//        postRepository.save(post1);
+//
+//        Post post2 = new Post("제목2", "내용2");
+//        //비즈니스 로직
+//        postRepository.save(post2);
+    }
+
+    void work2(){
+
+        Optional<Post> opPost =  postService.getPost(1); // 없을 수도 있으니까 Optional 타입 사용
+        //postRepository.findById(8); // select * from post where id=1;
+    }
+
 }
 
 /*
