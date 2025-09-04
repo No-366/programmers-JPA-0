@@ -1,14 +1,14 @@
 package com.back.global.initData;
 
 import com.back.domain.post.entity.Post;
-import com.back.domain.post.repository.PostRepository;
 import com.back.domain.post.service.PostService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Optional;
 
@@ -43,6 +43,10 @@ public class BaseInitData {//초기 데이터 세팅용 코드
     //@Autowired
     private final PostService postService;
 
+    @Autowired
+    @Lazy
+    private BaseInitData self;
+
 //    //생성자 주입 // Autowired가 이 역할을 대신 해줌
 //    public BaseInitData(PostService postService) {
 //        this.postService = postService;
@@ -54,14 +58,22 @@ public class BaseInitData {//초기 데이터 세팅용 코드
         return args -> {
             System.out.println("어플리케이션을 실행하였습니다");
 
-            work1();
-            work2();
+            self.work1();
+            self.work2();
+
+//            new Thread(()->{
+//                self.work3();
+//            }).start();
+            self.work4();
+
 
         };
     }
 
     // 초기에 아무 데이터가 없을 경우 샘플 데이처을 넣는 메서드
     // 데이터가 이미 들어있을 경우 실행 안함
+    // 생성
+    @Transactional
     void work1(){
 
         if(postService.getTotalCount() > 0){
@@ -80,11 +92,33 @@ public class BaseInitData {//초기 데이터 세팅용 코드
 //        //비즈니스 로직
 //        postRepository.save(post2);
     }
-
+    //조회
+    @Transactional(readOnly = true)
     void work2(){
 
         Optional<Post> opPost =  postService.getPost(1); // 없을 수도 있으니까 Optional 타입 사용
         //postRepository.findById(8); // select * from post where id=1;
+    }
+
+    //삭제
+    @Transactional
+    void work3(){
+        Post post1 = postService.getPost(1).get();
+        Post post2 = postService.getPost(2).get();
+
+        postService.delete(post1);
+
+        if(true) throw new RuntimeException("테스트용 예외 발생");
+
+        postService.delete(post2);
+    }
+
+    //수정
+    void work4(){
+        Post post1 = postService.getPost(1).get();
+
+        postService.modify(post1, "제목1 - 수정", "내용1-수정");
+
     }
 
 }
