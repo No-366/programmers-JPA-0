@@ -5,6 +5,9 @@ spring:
   application:
     name: demo
 
+  profiles:
+    active: dev # 기본적으로 application-dev.yml을 보도록
+
   datasource:
     url: jdbc:h2:./db_dev;MODE=MySQL # DB 위치
     username: sa
